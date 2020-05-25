@@ -1,0 +1,27 @@
+FROM nginx:1.17.7-alpine
+
+#
+# Install Dependencies 
+#
+RUN apk update
+RUN apk add wget unzip make perl perl-utils perl-test-taint perl-netaddr-ip perl-net-ip perl-yaml perl-log-log4perl perl-io-socket-ssl
+RUN apk add openrc --no-cache
+
+#
+# Install ddclient
+#
+RUN cpan Data::Validate::IP
+RUN wget https://sourceforge.net/projects/ddclient/files/latest/download -O ddclient.zip
+RUN unzip ddclient.zip
+RUN mkdir -p /etc/ddclient/ && mkdir -p /var/cache/ddclient/
+
+COPY ./ddclient/ddclient.conf /etc/ddclient/ddclient.conf
+
+#
+# Install service
+#
+
+COPY ./ddclient/service/ddclient /etc/init.d/
+RUN chmod u=rwx /etc/init.d/ddclient
+RUN rc-update add ddclient boot
+#RUN rc-service ddclient start

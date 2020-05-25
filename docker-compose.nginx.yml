@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  nginx:
+    image: "nginx:1.17.7-alpine"
+    restart: "always"
+    depends_on: 
+      - nextcloud
+    volumes:
+      - "nginx_config_volume:/etc/nginx"
+      - "certificates_volume:/etc/letsencrypt"
+    ports:
+      - "443:443"
+      - "80:80"
+    networks:
+      front:
+        ipv4_address: "172.16.2.2"
+      back:
+        ipv4_address: "172.16.1.4"

@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  certbot:
+    build:
+      context: .
+      dockerfile: Dockerfile_certbot
+    container_name: home-cloud-certbot
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - "TZ=Europe/Paris"
+      - "URL=$HOME_CLOUD_URL"
+      - "VALIDATION=http"
+      - "EMAIL=$HOME_CLOUD_EMAIL"
+    volumes:
+      - "certificates_volume:/etc/letsencrypt"
+      - "nginx_config_volume:/etc/nginx"
+    ports:
+      - 443:443
+      - 80:80 
+    depends_on:
+      - nextcloud
+    networks:
+      - front
+      - back
+    tty: true
+    stdin_open: true

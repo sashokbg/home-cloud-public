@@ -1,0 +1,5 @@
+*.swp
+.idea
+.env
+PRIVATE_README
+sites-enabled

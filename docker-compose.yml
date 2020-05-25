@@ -1,0 +1,56 @@
+version: "3.7"
+
+volumes:
+  nextcloud_volume:
+  mariadb_volume:
+  certificates_volume:
+  nginx_config_volume:
+     driver_opts:
+           type: volume
+           device: ${PWD}/nginx/
+           o: bind
+
+services:
+  nextcloud:
+    image: "nextcloud:latest"
+    ports:
+      - "8080:80"
+    volumes:
+      - "nextcloud_volume:/var/www/html"
+    restart: "always"
+    depends_on:
+      - mariadb
+    environment:
+      - "MYSQL_DATABASE=nextcloud"
+      - "MYSQL_USER=nextcloud"
+      - "MYSQL_PASSWORD=$HOME_CLOUD_PASS"
+      - "MYSQL_HOST=mariadb"
+    networks:
+      - back
+
+  mariadb: 
+    image: "mariadb"
+    command: "--transaction-isolation=READ-COMMITTED --binlog-format=ROW" 
+    restart: "always"
+    volumes:
+      - "mariadb_volume:/var/lib/mysql"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=$HOME_CLOUD_DB_ROOT_PASS"
+      - "MYSQL_PASSWORD=$HOME_CLOUD_PASS"
+      - "MYSQL_DATABASE=nextcloud"
+      - "MYSQL_USER=nextcloud"
+    networks:
+      - back
+
+networks:
+  back:
+    internal: true
+    ipam:
+      config:
+       - subnet: "172.16.1.0/28"
+  front:
+    ipam:
+      config:
+       - subnet: "172.16.2.0/28"
+    driver: bridge
+  
